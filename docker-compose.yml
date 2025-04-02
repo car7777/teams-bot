@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  teams-bot:
+    build: ./bot
+    container_name: teams-bot
+    environment:
+      - BOT_ID=${BOT_ID}
+      - BOT_PASSWORD=${BOT_PASSWORD}
+      - MICROSOFT_APP_ID=${MICROSOFT_APP_ID}
+      - MICROSOFT_APP_PASSWORD=${MICROSOFT_APP_PASSWORD}
+      - GRAPH_API_TOKEN=${GRAPH_API_TOKEN}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - api
+    networks:
+      - teams-network
+
+  api:
+    build: ./api
+    container_name: teams-api
+    environment:
+      - SPEECH_API_KEY=${SPEECH_API_KEY}
+      - SPEECH_REGION=${SPEECH_REGION}
+      - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
+      - STORAGE_KEY=${STORAGE_KEY}
+    ports:
+      - "5001:5001"
+    networks:
+      - teams-network
+
+  authentik:
+    image: ghcr.io/goauthentik/server
+    container_name: authentik
+    environment:
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+    ports:
+      - "9000:9000"
+    networks:
+      - teams-network
+
+networks:
+  teams-network:
+    driver: bridge
